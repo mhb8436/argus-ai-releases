@@ -1,6 +1,9 @@
 <p align="center">
   <a href="README.md">English</a> |
-  <a href="README.ko.md">한국어</a>
+  <a href="README.ko.md">한국어</a> |
+  <a href="README.zh-CN.md">简体中文</a> |
+  <a href="README.ja.md">日本語</a> |
+  <a href="README.es.md">Español</a>
 </p>
 
 <p align="center">
@@ -222,4 +225,4 @@ YAML 기반 22개 이상 카테고리:
 
 AGPL-3.0 with Commons Clause
 
-Copyright (c) 2026 Argus Contributors
+Copyright (c) 2026 크래프틱시스템즈 주식회사 (CRAFTICSYSTEMS Co., Ltd.)

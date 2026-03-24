@@ -1,6 +1,9 @@
 <p align="center">
   <a href="README.md">English</a> |
-  <a href="README.ko.md">한국어</a>
+  <a href="README.ko.md">한국어</a> |
+  <a href="README.zh-CN.md">简体中文</a> |
+  <a href="README.ja.md">日本語</a> |
+  <a href="README.es.md">Español</a>
 </p>
 
 <p align="center">
@@ -222,4 +225,4 @@ For inquiries, please open an [issue](https://github.com/mhb8436/argus-ai-releas
 
 AGPL-3.0 with Commons Clause
 
-Copyright (c) 2026 Argus Contributors
+Copyright (c) 2026 CRAFTICSYSTEMS Co., Ltd.
