@@ -1,17 +1,22 @@
 <p align="center">
+  <a href="README.md">English</a> |
+  <a href="README.ko.md">한국어</a>
+</p>
+
+<p align="center">
   <img src="argus-combined-demo.gif" alt="Argus AI Demo" width="800">
 </p>
 
 <h1 align="center">Argus AI</h1>
 <p align="center">
-  <strong>API security platform with 206+ YAML-based detection rules and AI-powered threat analysis</strong>
+  <strong>API security platform with 250+ YAML-based detection rules and AI-powered threat analysis</strong>
 </p>
 
 <p align="center">
   <a href="https://github.com/mhb8436/argus-ai-releases/releases"><img src="https://img.shields.io/github/v/release/mhb8436/argus-ai-releases?label=Latest%20Release" alt="Release"></a>
   <a href="#license"><img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go" alt="Go Version">
-  <img src="https://img.shields.io/badge/Rules-206+-orange" alt="Rules">
+  <img src="https://img.shields.io/badge/Rules-250+-orange" alt="Rules">
   <img src="https://img.shields.io/badge/OWASP-API_Top_10-red" alt="OWASP">
 </p>
 
@@ -19,13 +24,12 @@
   <a href="#argus-platform">Platform</a> |
   <a href="#argus-cli">CLI</a> |
   <a href="#downloads">Downloads</a> |
-  <a href="#comparison">Comparison</a> |
-  <a href="#한국어">한국어</a>
+  <a href="#comparison">Comparison</a>
 </p>
 
 ---
 
-Argus is an API security platform that discovers, analyzes, and protects your APIs. It captures HTTP traffic, runs 206+ YAML-based security rules (OWASP API Top 10), detects sensitive data (PII, credentials, tokens), and lets you query threats using natural language.
+Argus is an API security platform that discovers, analyzes, and protects your APIs. It captures HTTP traffic, runs 250+ YAML-based security rules (OWASP API Top 10), detects sensitive data (PII, credentials, tokens), and lets you query threats using natural language.
 
 ## Two Products
 
@@ -44,13 +48,13 @@ Argus is an API security platform that discovers, analyzes, and protects your AP
 ### 3-Step Security Lifecycle
 
 **Discover** -- Auto-collect API inventory and identify shadow APIs
-**Analyze** -- 206 security rules + sensitive data detection (DLP)
+**Analyze** -- 250+ security rules + sensitive data detection (DLP)
 **Act** -- AI-powered natural language queries + real-time alerts
 
 ### Key Features
 
 - **Real-time traffic analysis** -- Collector captures HTTP traffic via gateway/sidecar/agent
-- **206+ YAML security rules** -- SQL Injection, XSS, SSRF, BOLA, Command Injection, and more
+- **250+ YAML security rules** -- SQL Injection, XSS, SSRF, BOLA, Command Injection, and more
 - **Dual scan modes** -- Passive (zero-impact) + Active (penetration testing)
 - **Sensitive data detection** -- Credit cards (Luhn), SSN, JWT, email, phone numbers
 - **AI natural language queries** -- "Show me SQL injections from last week" via LLM (Azure OpenAI / Ollama)
@@ -71,7 +75,7 @@ Traffic Sources          Platform                          Storage
                    │       v                           │
                    │  Analyzer                         │──> PostgreSQL
                    │   ├─ Parser (HTTP traffic)        │
-                   │   ├─ Detector (206 YAML rules)    │
+                   │   ├─ Detector (250+ YAML rules)    │
                    │   ├─ Sensitive (PII detection)    │──> Redis
                    │   └─ Notifier (Slack/Email/WH)    │
                    │       │                           │
@@ -87,7 +91,7 @@ Traffic Sources          Platform                          Storage
 
 <h2 id="argus-cli">Argus CLI -- Standalone Security Testing</h2>
 
-A single Go binary with all 206 rules embedded. No server, no database, no internet required. Works like Burp Suite but in your terminal.
+A single Go binary with all 250+ rules embedded. No server, no database, no internet required. Works like Burp Suite but in your terminal.
 
 ```bash
 # Passive scan (safe for production)
@@ -116,7 +120,7 @@ argus-cli report generate --format html --output report.html
 | **Proxy** | Intercept & inspect HTTP/HTTPS traffic | Proxy |
 | **Repeater** | Edit and resend requests | Repeater |
 | **Intruder** | Automated fuzzing with payloads | Intruder |
-| **Scanner** | 206 YAML rules, passive + active | Scanner |
+| **Scanner** | 250+ YAML rules, passive + active | Scanner |
 | **Crawler** | Discover endpoints and forms | Spider |
 | **Decoder** | Base64, URL, hex encoding/decoding | Decoder |
 | **Comparer** | Diff two responses | Comparer |
@@ -164,7 +168,7 @@ chmod +x argus-cli
 | Feature | Argus | Akto | Burp Suite | ZAP | Nuclei |
 |---------|:-----:|:----:|:----------:|:---:|:------:|
 | API-focused security | Yes | Yes | Partial | Partial | Partial |
-| YAML-based rules | 206+ | 1000+ | Proprietary | No | 8000+ |
+| YAML-based rules | 250+ | 208 (OSS) | Proprietary | No | 8000+ |
 | Custom rules | Yes | Yes | Extensions | Scripts | Yes |
 | Passive + Active scan | Both | Both | Both | Both | Active only |
 | Sensitive data detection (DLP) | Yes | Yes | No | No | No |
@@ -176,7 +180,7 @@ chmod +x argus-cli
 
 ---
 
-## Security Rules (206+)
+## Security Rules (250+)
 
 All rules are YAML-based covering 22+ categories:
 
@@ -211,35 +215,6 @@ All rules are YAML-based covering 22+ categories:
 ## Contact
 
 For inquiries, please open an [issue](https://github.com/mhb8436/argus-ai-releases/issues).
-
----
-
-<h2 id="한국어">한국어</h2>
-
-Argus AI는 API를 발견하고, 분석하고, 보호하는 API 보안 플랫폼입니다.
-
-### 주요 특징
-- **206개 이상의 YAML 보안 규칙** -- OWASP API Top 10 커버
-- **이중 스캔 모드** -- Passive(운영 환경 무영향) + Active(모의해킹)
-- **민감정보 탐지** -- 신용카드, 주민등록번호, JWT, 이메일, 전화번호
-- **AI 자연어 쿼리** -- "지난 주 SQL Injection 보여줘"로 즉시 검색
-- **독립 실행 CLI** -- 단일 바이너리, 서버 불필요, 폐쇄망 환경 지원
-- **KISA 웹 취약점 점검** -- 28개 항목(WEB-001 ~ WEB-028) 자동 점검 + Excel 리포트
-
-### 다운로드
-
-[Releases](https://github.com/mhb8436/argus-ai-releases/releases) 페이지에서 바이너리를 다운로드하세요.
-
-```bash
-# macOS (Apple Silicon)
-curl -L -o argus-cli https://github.com/mhb8436/argus-ai-releases/releases/latest/download/argus-cli-darwin-arm64
-chmod +x argus-cli
-./argus-cli --help
-```
-
-### 문의
-
-문의사항은 [이슈](https://github.com/mhb8436/argus-ai-releases/issues)를 등록해 주세요.
 
 ---
 
