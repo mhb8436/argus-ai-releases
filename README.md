@@ -1,121 +1,250 @@
-# Argus AI
+<p align="center">
+  <img src="argus-combined-demo.gif" alt="Argus AI Demo" width="800">
+</p>
 
-[![Version](https://img.shields.io/badge/version-v1.0.0-blue.svg)](https://github.com/mhb8436/argus-ai-releases/releases/tag/v1.0.0)
-[![License](https://img.shields.io/badge/License-AGPL_v3_+_Commons_Clause-green.svg)](#license)
+<h1 align="center">Argus AI</h1>
+<p align="center">
+  <strong>API security platform with 206+ YAML-based detection rules and AI-powered threat analysis</strong>
+</p>
 
-**자연어로 API 보안을 분석하는 AI 플랫폼**
+<p align="center">
+  <a href="https://github.com/mhb8436/argus-ai-releases/releases"><img src="https://img.shields.io/github/v/release/mhb8436/argus-ai-releases?label=Latest%20Release" alt="Release"></a>
+  <a href="#license"><img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" alt="License"></a>
+  <img src="https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go" alt="Go Version">
+  <img src="https://img.shields.io/badge/Rules-206+-orange" alt="Rules">
+  <img src="https://img.shields.io/badge/OWASP-API_Top_10-red" alt="OWASP">
+</p>
 
-> "지난 주에 발견된 SQL Injection 취약점 보여줘"
-> "HIGH 심각도 보안 이슈 검색해줘"
-> "신용카드 정보가 노출된 API 찾아줘"
-
-복잡한 쿼리 문법 없이, 자연어로 보안 데이터를 검색하고 분석하세요.
-
----
-
-## Demo
-
-![Argus AI Demo](argus-combined-demo.gif)
-
----
-
-## AI 자연어 쿼리
-
-LLM이 자연어를 Elasticsearch Query DSL로 변환하여 실행합니다.
-
-| 기능 | 설명 |
-|------|------|
-| **보안 취약점 검색** | 카테고리, 심각도, 기간별 필터링 |
-| **민감정보 탐지 조회** | 신용카드, 이메일, JWT 등 데이터 유형별 검색 |
-| **API 트래픽 분석** | 응답코드, 메서드, 경로별 트래픽 조회 |
-| **LLM 지원** | Azure OpenAI, Ollama (로컬 LLM) 지원 |
+<p align="center">
+  <a href="#argus-platform">Platform</a> |
+  <a href="#argus-cli">CLI</a> |
+  <a href="#downloads">Downloads</a> |
+  <a href="#comparison">Comparison</a> |
+  <a href="#한국어">한국어</a>
+</p>
 
 ---
 
-## Features
+Argus is an API security platform that discovers, analyzes, and protects your APIs. It captures HTTP traffic, runs 206+ YAML-based security rules (OWASP API Top 10), detects sensitive data (PII, credentials, tokens), and lets you query threats using natural language.
 
-| 기능 | 설명 |
-|------|------|
-| **API 인벤토리** | API 엔드포인트 자동 수집 및 카탈로그 관리 |
-| **위협 탐지** | 206개 이상의 YAML 기반 보안 규칙 (OWASP API Top 10) |
-| **민감정보 탐지** | PII, 자격증명, 토큰 등 실시간 탐지 |
-| **도메인 관리** | 모니터링 대상 도메인 설정 및 연동 |
-| **알림** | Slack, Email, Webhook 채널 지원 |
+## Two Products
+
+| | Argus Platform | Argus CLI |
+|--|:---:|:---:|
+| **Type** | Server-based platform | Standalone binary |
+| **Use case** | Continuous API monitoring | On-demand security testing |
+| **Infrastructure** | Kafka, Elasticsearch, PostgreSQL | None (SQLite embedded) |
+| **Interface** | Web dashboard (React) | Terminal (CLI + TUI) |
+| **Best for** | DevSecOps teams, SOC | Pentesters, auditors, air-gapped networks |
 
 ---
 
-## Architecture
+<h2 id="argus-platform">Argus Platform (Server)</h2>
+
+### 3-Step Security Lifecycle
+
+**Discover** -- Auto-collect API inventory and identify shadow APIs
+**Analyze** -- 206 security rules + sensitive data detection (DLP)
+**Act** -- AI-powered natural language queries + real-time alerts
+
+### Key Features
+
+- **Real-time traffic analysis** -- Collector captures HTTP traffic via gateway/sidecar/agent
+- **206+ YAML security rules** -- SQL Injection, XSS, SSRF, BOLA, Command Injection, and more
+- **Dual scan modes** -- Passive (zero-impact) + Active (penetration testing)
+- **Sensitive data detection** -- Credit cards (Luhn), SSN, JWT, email, phone numbers
+- **AI natural language queries** -- "Show me SQL injections from last week" via LLM (Azure OpenAI / Ollama)
+- **Automated scanning** -- Cron-based scheduled scans with saved test configurations
+- **Enterprise integrations** -- Slack, Email, Webhooks alerts + RBAC + domain filtering
+
+### Architecture
 
 ```
-Traffic Sources → Collector (8081) → Kafka → Analyzer → Elasticsearch/PostgreSQL → Dashboard API (8080) → React UI (3000)
+Traffic Sources          Platform                          Storage
+                    ┌─────────────────────────────────┐
+ Gateway ─────┐    │                                   │
+              ├───>│  Collector (:8081)                 │
+ Sidecar ─────┤    │       │                           │
+              │    │       v                           │
+ Log Agent ───┘    │     Kafka                         │──> Elasticsearch
+                   │       │                           │
+                   │       v                           │
+                   │  Analyzer                         │──> PostgreSQL
+                   │   ├─ Parser (HTTP traffic)        │
+                   │   ├─ Detector (206 YAML rules)    │
+                   │   ├─ Sensitive (PII detection)    │──> Redis
+                   │   └─ Notifier (Slack/Email/WH)    │
+                   │       │                           │
+                   │       v                           │
+                   │  Dashboard API (:8080)            │
+                   │       │                           │
+                   │       v                           │
+                   │  React UI (:3000)                 │
+                   └─────────────────────────────────┘
 ```
 
-### Core Services
+---
 
-| 서비스 | 설명 | 포트 |
-|--------|------|------|
-| **Collector** | HTTP 트래픽 수집, Kafka 발행 | 8081 |
-| **Analyzer** | 트래픽 파싱, 보안 규칙 매칭, 민감정보 탐지 | - |
-| **Dashboard API** | REST API, JWT 인증, AI 쿼리 처리 | 8080 |
-| **UI** | React 기반 대시보드 | 3000 |
+<h2 id="argus-cli">Argus CLI -- Standalone Security Testing</h2>
+
+A single Go binary with all 206 rules embedded. No server, no database, no internet required. Works like Burp Suite but in your terminal.
+
+```bash
+# Passive scan (safe for production)
+argus-cli scan passive https://api.example.com
+
+# Active scan (sends attack payloads)
+argus-cli scan active https://api.example.com
+
+# Full scan (crawl + passive + active)
+argus-cli scan full https://api.example.com
+
+# Proxy mode (intercept browser traffic)
+argus-cli proxy start --port 8082 --passive-scan
+
+# KISA web vulnerability assessment (Korea)
+argus-cli scan kisa https://api.example.com --level 2 --output report.xlsx
+
+# Generate HTML report
+argus-cli report generate --format html --output report.html
+```
+
+### CLI Tools
+
+| Tool | Description | Burp Suite Equivalent |
+|------|-------------|----------------------|
+| **Proxy** | Intercept & inspect HTTP/HTTPS traffic | Proxy |
+| **Repeater** | Edit and resend requests | Repeater |
+| **Intruder** | Automated fuzzing with payloads | Intruder |
+| **Scanner** | 206 YAML rules, passive + active | Scanner |
+| **Crawler** | Discover endpoints and forms | Spider |
+| **Decoder** | Base64, URL, hex encoding/decoding | Decoder |
+| **Comparer** | Diff two responses | Comparer |
+| **Sequencer** | Token randomness analysis | Sequencer |
+
+### KISA Web Vulnerability Assessment
+
+Built-in support for [KISA](https://www.kisa.or.kr/) web vulnerability assessment -- 28 check items (WEB-001 ~ WEB-028) with automated scanning and Excel report generation.
+
+| Level | Items | Description |
+|-------|------:|-------------|
+| Level 0 (Passive) | 7 | Directory indexing, info disclosure, session expiry, cookie security |
+| Level 1 (Semi-active) | 9 | Header checks, authentication tests |
+| Level 2 (Active) | 12 | SQLi, XSS, SSRF, command injection |
+
+---
+
+<h2 id="downloads">Downloads</h2>
+
+Download the latest binaries from the [Releases](https://github.com/mhb8436/argus-ai-releases/releases) page.
+
+| Platform | Architecture | Binary |
+|----------|-------------|--------|
+| macOS | Apple Silicon (arm64) | `argus-cli-darwin-arm64` |
+| macOS | Intel (amd64) | `argus-cli-darwin-amd64` |
+| Linux | amd64 | `argus-cli-linux-amd64` |
+| Windows | amd64 | `argus-cli-windows-amd64.exe` |
+
+```bash
+# macOS (Apple Silicon)
+curl -L -o argus-cli https://github.com/mhb8436/argus-ai-releases/releases/latest/download/argus-cli-darwin-arm64
+chmod +x argus-cli
+./argus-cli --help
+
+# Linux
+curl -L -o argus-cli https://github.com/mhb8436/argus-ai-releases/releases/latest/download/argus-cli-linux-amd64
+chmod +x argus-cli
+./argus-cli --help
+```
+
+---
+
+<h2 id="comparison">Comparison</h2>
+
+| Feature | Argus | Akto | Burp Suite | ZAP | Nuclei |
+|---------|:-----:|:----:|:----------:|:---:|:------:|
+| API-focused security | Yes | Yes | Partial | Partial | Partial |
+| YAML-based rules | 206+ | 1000+ | Proprietary | No | 8000+ |
+| Custom rules | Yes | Yes | Extensions | Scripts | Yes |
+| Passive + Active scan | Both | Both | Both | Both | Active only |
+| Sensitive data detection (DLP) | Yes | Yes | No | No | No |
+| AI natural language query | Yes | No | No | No | No |
+| Standalone CLI (air-gapped) | Yes | No | Yes | Yes | Yes |
+| Real-time traffic analysis | Yes | Yes | Yes | Yes | No |
+| KISA compliance (Korea) | 28 items | No | No | No | No |
+| Burp Suite-like tools (proxy, intruder, repeater) | Yes (CLI) | No | Yes (GUI) | Partial | No |
+
+---
+
+## Security Rules (206+)
+
+All rules are YAML-based covering 22+ categories:
+
+| Category | Rules | Examples |
+|----------|------:|---------|
+| Injection Attacks (SQLi, NoSQLi, XXE) | 30+ | Error-based, union-based, blind SQLi |
+| Cross-Site Scripting (XSS) | 9 | Reflected, DOM-based, encoding bypass |
+| Command Injection | 18 | Shell, Struts, Spring, Tomcat RCE |
+| Server-Side Request Forgery | 8 | AWS/Azure/GCP metadata redirect |
+| Broken Authentication | 25+ | JWT, 2FA bypass, credential stuffing |
+| Security Misconfiguration | 25+ | Default creds, exposed panels, debug endpoints |
+| Local File Inclusion | 11 | Path traversal, directory traversal |
+| Sensitive Data Detection | 5 types | Credit card, SSN, JWT, email, phone |
+| ...and more | | CORS, CRLF, SSTI, rate limiting, GraphQL |
 
 ---
 
 ## Tech Stack
 
-| 구분 | 기술 |
-|------|------|
-| AI/LLM | Azure OpenAI, Ollama |
+| Layer | Technology |
+|-------|-----------|
 | Backend | Go 1.21+, Fiber v2 |
 | Frontend | React 18, TypeScript, Vite |
+| AI/LLM | Azure OpenAI, Ollama (local) |
 | Database | PostgreSQL, Elasticsearch |
-| Message Queue | Kafka |
+| Message Queue | Apache Kafka |
 | Cache | Redis |
-
----
-
-## Releases
-
-### v1.0.0 (2025-01-29) - Initial Release
-
-첫 번째 정식 릴리즈
-
-**주요 기능:**
-- AI 자연어 쿼리 (Azure OpenAI, Ollama 지원)
-- 실시간 API 트래픽 수집 및 분석
-- 206개 OWASP 기반 보안 규칙
-- 민감정보 자동 탐지 (SSN, 신용카드, JWT 등)
-- API 인벤토리 자동 생성
-- Slack, Email, Webhook 알림
-
----
-
-## Quick Start
-
-```bash
-# 전체 환경 시작 (인프라 + 앱)
-./dev.sh all
-
-# 브라우저에서 접속
-open http://localhost:3000
-
-# 로그인
-# ID: admin@example.com
-# PW: admin123
-```
+| CLI Storage | SQLite (embedded) |
 
 ---
 
 ## Contact
 
-문의사항이 있으시면 이슈를 등록해 주세요.
+For inquiries, please open an [issue](https://github.com/mhb8436/argus-ai-releases/issues).
+
+---
+
+<h2 id="한국어">한국어</h2>
+
+Argus AI는 API를 발견하고, 분석하고, 보호하는 API 보안 플랫폼입니다.
+
+### 주요 특징
+- **206개 이상의 YAML 보안 규칙** -- OWASP API Top 10 커버
+- **이중 스캔 모드** -- Passive(운영 환경 무영향) + Active(모의해킹)
+- **민감정보 탐지** -- 신용카드, 주민등록번호, JWT, 이메일, 전화번호
+- **AI 자연어 쿼리** -- "지난 주 SQL Injection 보여줘"로 즉시 검색
+- **독립 실행 CLI** -- 단일 바이너리, 서버 불필요, 폐쇄망 환경 지원
+- **KISA 웹 취약점 점검** -- 28개 항목(WEB-001 ~ WEB-028) 자동 점검 + Excel 리포트
+
+### 다운로드
+
+[Releases](https://github.com/mhb8436/argus-ai-releases/releases) 페이지에서 바이너리를 다운로드하세요.
+
+```bash
+# macOS (Apple Silicon)
+curl -L -o argus-cli https://github.com/mhb8436/argus-ai-releases/releases/latest/download/argus-cli-darwin-arm64
+chmod +x argus-cli
+./argus-cli --help
+```
+
+### 문의
+
+문의사항은 [이슈](https://github.com/mhb8436/argus-ai-releases/issues)를 등록해 주세요.
 
 ---
 
 ## License
 
 AGPL-3.0 with Commons Clause
-
-이 소프트웨어는 사용, 수정, 배포가 가능하지만 판매하거나 유료 서비스로 제공할 수 없습니다.
 
 Copyright (c) 2026 Argus Contributors
